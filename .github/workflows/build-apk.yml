@@ -14,6 +14,7 @@ jobs:
         run: unzip -oq gage_v3_nounity.zip
       - name: Setup Android export
         run: |
+          apt-get update && apt-get install -y openjdk-17-jdk-headless
           mkdir -p ~/.local/share/godot/export_templates ~/.config/godot
           mv /root/.local/share/godot/export_templates/4.3.stable.mono ~/.local/share/godot/export_templates/ 2>/dev/null || true
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore /root/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
