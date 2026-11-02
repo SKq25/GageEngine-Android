@@ -49,7 +49,7 @@ jobs:
           sed -i 's/^          //' ~/.config/godot/editor_settings-4.tres
       - name: Compile C# scripts
         working-directory: GAGE
-        run: godot --headless --editor --path . --build-solutions --quit
+        run: dotnet build GAGE.csproj --configuration Debug --nologo
       - name: Build APK
         working-directory: GAGE
         run: |
