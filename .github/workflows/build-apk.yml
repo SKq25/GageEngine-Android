@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Extract GAGE source
         run: unzip -oq gage_v3_nounity.zip
-      - name: Setup Android export
+      - name: Setup Android and .NET export
         run: |
           curl -fsSL "https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jdk/hotspot/normal/eclipse" -o /tmp/jdk17.tar.gz
           mkdir -p /opt/jdk17
@@ -21,6 +21,13 @@ jobs:
           echo "/opt/jdk17/bin" >> "$GITHUB_PATH"
           export JAVA_HOME=/opt/jdk17
           export PATH="$JAVA_HOME/bin:$PATH"
+          curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+          bash /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet
+          echo "DOTNET_ROOT=/usr/share/dotnet" >> "$GITHUB_ENV"
+          echo "/usr/share/dotnet" >> "$GITHUB_PATH"
+          export DOTNET_ROOT=/usr/share/dotnet
+          export PATH="$DOTNET_ROOT:$PATH"
+          dotnet --info
           mkdir -p ~/.local/share/godot/export_templates ~/.config/godot
           mv /root/.local/share/godot/export_templates/4.3.stable.mono ~/.local/share/godot/export_templates/ 2>/dev/null || true
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore /root/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
