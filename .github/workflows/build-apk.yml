@@ -1,0 +1,38 @@
+name: Build Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:mono-4.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract GAGE source
+        run: unzip -oq gage_v3_nounity.zip
+      - name: Setup Android export
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates ~/.config/godot
+          mv /root/.local/share/godot/export_templates/4.3.stable.mono ~/.local/share/godot/export_templates/ 2>/dev/null || true
+          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore /root/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+          cat > ~/.config/godot/editor_settings-4.tres <<'EOS'
+          [gd_resource type="EditorSettings" format=3]
+          [resource]
+          export/android/android_sdk_path = "/usr/lib/android-sdk"
+          export/android/debug_keystore = "/root/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOS
+          sed -i 's/^          //' ~/.config/godot/editor_settings-4.tres
+      - name: Build APK
+        working-directory: GAGE
+        run: |
+          mkdir -p build
+          godot --headless --verbose --import || true
+          godot --headless --verbose --export-debug "Android" build/GAGE.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GAGE-apk
+          path: GAGE/build/GAGE.apk
