@@ -40,12 +40,15 @@ jobs:
           export/android/debug_keystore_pass = "android"
           EOS
           sed -i 's/^          //' ~/.config/godot/editor_settings-4.tres
+      - name: Compile C# scripts
+        working-directory: GAGE
+        run: godot --headless --editor --path . --build-solutions --quit
       - name: Build APK
         working-directory: GAGE
         run: |
           mkdir -p build
-          godot --headless --verbose --import || true
-          godot --headless --verbose --export-debug "Android" build/GAGE.apk
+          godot --headless --verbose --path . --import
+          godot --headless --verbose --path . --export-debug "Android" build/GAGE.apk
       - uses: actions/upload-artifact@v4
         with:
           name: GAGE-apk
